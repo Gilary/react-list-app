@@ -1,36 +1,41 @@
-import React, { Component } from 'react';
-import './App.css';
+import React, { Component } from "react";
+import "./App.css";
+//import Fetcher from "./Fetcher.js";
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      articles: [
-        {
-          title: "React",
-          url: "https://facebook.github.io/react/",
-          author: "Jordan Walke",
-          num_comments: 3,
-          points: 4,
-          objectID: 0
-        },
-        {
-          title: "Redux",
-          url: "https://github.com/reactjs/redux",
-          author: "Dan Abramov, Andrew Clark",
-          num_comments: 2,
-          points: 5,
-          objectID: 1
-        }
-      ],
+      hits: [],
+      visible: 5,
       message: "",
       searchTerm: ""
-    }
+    };
+    this.loadMore = this.loadMore.bind(this);
   }
 
-  onSearchChange = e => {
-    this.setState({ searchTerm: e.target.value });
-  };
+  loadMore() {
+    this.setState(prev => {
+      return { visible: prev.visible + 5 };
+    });
+  }
+  componentDidMount() {
+    this.getArticleHits();
+  }
+
+  getArticleHits() {
+    const articles = "https://hn.algolia.com/api/v1/search_by_date?tags=story";
+
+    fetch(articles)
+      .then(response => response.json())
+      .then(data => this.setState({ hits: data.hits })); //.then(articles => this.setState({ articles })); //articles:articles.articles or articles
+    // .catch(error => {
+    //   console.error(error);
+    //   this.setState({
+    //     error:true
+    //   });
+    // });
+  }
 
   // addArticle(e) {
   //   e.preventDefault();
@@ -54,31 +59,37 @@ class App extends Component {
 
   addEmptyArticle = () => {
     this.setState({
-      articles: [
-        ...this.state.articles,
+      hits: [
+        ...this.state.hits,
         {
           title: "Empty",
           url: "Empty",
           author: "empty",
           num_comments: 0,
           points: 0,
-          objectID: 0
+          objectID: 0,
+          id: 12
         }
-      ],
+      ]
     });
   };
+
   removeArticle(i) {
-    const newArticles = this.state.articles.filter(article => {
-      return article !== i;
-    })
+    const newArticles = this.state.hits.filter(hit => {
+      return hit !== i;
+    });
     this.setState({
-      articles: [...newArticles]
-    })
+      hits: [...newArticles]
+    });
   }
 
+  onSearchChange = e => {
+    this.setState({ searchTerm: e.target.value });
+  };
+
   render() {
-    //const { articles } = this.state;
-    const list = this.state.articles.filter(i =>
+    //const { hits/articles } = this.state;
+    const list = this.state.hits.filter(i =>
       i.title.toLowerCase().includes(this.state.searchTerm.toLowerCase())
     );
     return (
@@ -94,56 +105,79 @@ class App extends Component {
         <table className="table table-bordered">
           <thead>
             <tr>
+              <td colSpan="6" className="text-center">
+                <button
+                  onClick={() => this.addEmptyArticle()}
+                  type="button"
+                  className="btn btn-add"
+                >
+                  + Toevoegen leeg artikel
+                </button>
+              </td>
+            </tr>
+            <tr>
               <th scope="col">Title</th>
               <th scope="col">Author</th>
               <th scope="col">Comments</th>
               <th scope="col">Points</th>
               <th scope="col">Archive</th>
-              {<th scope="col"><input
-                ref={i => {
-                  this.newArticle = i;
-                }}
-                type="text"
-                placeholder="zoek artikelen"
-                className="form-control"
-                id="newItemInput"
-                onChange={e => this.onSearchChange(e)}
-              /></th>}
+              {
+                <th scope="col">
+                  <input
+                    ref={i => {
+                      this.newArticle = i;
+                    }}
+                    type="text"
+                    placeholder="zoek artikelen"
+                    className="form-control"
+                    id="newItemInput"
+                    onChange={e => this.onSearchChange(e)}
+                  />
+                </th>
+              }
             </tr>
           </thead>
           <tbody>
-            {
-              list.map(i => {
-                return (
-                  <tr key={i.objectID}>
-                    <td key={i.title}>
-                      <a href={i.url}>{i.title}</a>
-                    </td>
-                    <td key={i.author}>{i.author}</td>
-                    <td key={i.num_comments}>{i.num_comments}</td>
-                    <td key={i.points}>{i.points}</td>
-                    <td key={i.objectID}>{i.objectID}</td>
-                    <td><button onClick={(e) => this.removeArticle(i)} type="button" className="btn btn-danger btn-right">Verwijder</button></td>
-                  </tr>
-
-                )
-              })
-            }
+            {list.slice(0, this.state.visible).map(hits => {
+              //slice nog bewerken
+              return (
+                <tr key={hits.objectID}>
+                  <td key={hits.title}>
+                    <a href={hits.url}>{hits.title}</a>
+                  </td>
+                  <td key={hits.author}>{hits.author}</td>
+                  <td key={hits.num_comments}>{hits.num_comments}</td>
+                  <td key={hits.points}>{hits.points}</td>
+                  <td key={hits.objectID}>{hits.objectID}</td>
+                  <td>
+                    <button
+                      onClick={e => this.removeArticle(hits)}
+                      type="button"
+                      className="btn btn-danger btn-right"
+                    >
+                      Verwijder
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
             <tr>
               <td colSpan="6" className="text-center">
-                <button
-                  onClick={() => this.addEmptyArticle()}
-                  type="button"
-                  className="btn btn-add">
-                  + Toevoegen leeg artikel
-                </button>
+                {this.state.visible < this.state.hits.length && (
+                  <button
+                    onClick={this.loadMore}
+                    type="button"
+                    className="btn btn-add"
+                  >
+                    ...load more
+                  </button>
+                )}
               </td>
             </tr>
           </tbody>
         </table>
-      </div >
+      </div>
     );
   }
 }
-
 export default App;
