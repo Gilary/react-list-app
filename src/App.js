@@ -25,7 +25,7 @@ class App extends Component {
   }
 
   getArticleHits() {
-    const articles = `https://hn.algolia.com/apkli/v1/search?query=${
+    const articles = `https://hn.algolia.com/api/v1/search?query=${
       this.state.searchTerm
     }`;
 
