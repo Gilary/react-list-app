@@ -1,8 +1,10 @@
+@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700");
+
 body {
   margin: 0;
   padding: 0;
   height: 100vh;
-  font-family: sans-serif;
+  font-family: "Source Sans Pro", sans-serif;
   /* background-color: #dcdde1; */
   background: linear-gradient(100deg, #7ed6df, #badc58);
 }
@@ -15,7 +17,7 @@ a:hover {
   color: #eb4d4b;
 }
 
-/* h1 {
+h1 {
   padding: 20px;
   background: linear-gradient(100deg, #7ed6df, #badc58);
   background-clip: text;
@@ -23,7 +25,13 @@ a:hover {
   -webkit-text-fill-color: transparent;
   color: white;
   font-weight: 900;
-} */
+}
+
+h2 {
+  font-weight: 300;
+  font-size: 1.2em;
+  color: #333;
+}
 
 table {
   width: 100%;
@@ -51,6 +59,12 @@ table {
   -moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.12),
     0 2px 4px 0 rgba(0, 0, 0, 0.08);
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.12), 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+.content {
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
 }
 
 /* .btn:focus {
@@ -88,6 +102,36 @@ table {
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(255, 0, 0, 0.6); */
 }
 
+/* #pulse-button {
+  position: relative;
+  box-shadow: 0 0 0 0 rgba(232, 76, 61, 0.7);
+  -webkit-animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1);
+  -moz-animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1);
+  -ms-animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1);
+  animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1);
+}
+
+@-webkit-keyframes pulse {
+  to {
+    box-shadow: 0 0 0 45px rgba(232, 76, 61, 0);
+  }
+}
+@-moz-keyframes pulse {
+  to {
+    box-shadow: 0 0 0 45px rgba(232, 76, 61, 0);
+  }
+}
+@-ms-keyframes pulse {
+  to {
+    box-shadow: 0 0 0 45px rgba(232, 76, 61, 0);
+  }
+}
+@keyframes pulse {
+  to {
+    box-shadow: 0 0 0 45px rgba(232, 76, 61, 0);
+  }
+} */
+
 .form-control:focus {
   border-color: #eb4d4b;
   -webkit-box-shadow: none;
@@ -109,3 +153,27 @@ table {
 ::-webkit-scrollbar-thumb:hover {
   background: #bdc3c7;
 }
+
+/* .input-wrapper {
+  position: relative;
+  width: 500px;
+  margin: 50px auto;
+}
+
+.input-highlight {
+  font-size: 16px;
+  user-select: none;
+  line-height: 5px;
+  border-top: 3px solid white;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  max-width: 100%;
+  height: 0;
+  color: transparent;
+  overflow: hidden;
+}
+
+.input-highlight:focus {
+  border-top: 3px solid #fbc91b;
+} */

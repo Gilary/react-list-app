@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "./App.css";
-//import Fetcher from "./Fetcher.js";
+//import Search from "./Search";
 
 class App extends Component {
   constructor(props) {
@@ -8,8 +8,9 @@ class App extends Component {
     this.state = {
       hits: [],
       visible: 5,
+      error: false,
       message: "",
-      searchTerm: ""
+      searchTerm: "Foo"
     };
     this.loadMore = this.loadMore.bind(this);
   }
@@ -24,19 +25,21 @@ class App extends Component {
   }
 
   getArticleHits() {
-    const articles = "https://hn.algolia.com/api/v1/search_by_date?tags=story";
+    const articles = `https://hn.algolia.com/apkli/v1/search?query=${
+      this.state.searchTerm
+    }`;
 
     fetch(articles)
       .then(response => response.json())
-      .then(data => this.setState({ hits: data.hits })); //.then(articles => this.setState({ articles })); //articles:articles.articles or articles
-    // .catch(error => {
-    //   console.error(error);
-    //   this.setState({
-    //     error:true
-    //   });
-    // });
+      .then(data => this.setState({ hits: data.hits })) //.then(articles => this.setState({ articles })); //articles:articles.articles or articles
+      .catch(error => {
+        console.error(error);
+        this.setState({
+          error: true
+        });
+      });
   }
-
+  //<---article toevoegen--->
   // addArticle(e) {
   //   e.preventDefault();
   //   const { articles } = this.state;
@@ -56,6 +59,7 @@ class App extends Component {
 
   //   this.addForm.reset();
   // }
+  //<---article toevoegen--->
 
   addEmptyArticle = () => {
     this.setState({
@@ -87,12 +91,49 @@ class App extends Component {
     this.setState({ searchTerm: e.target.value });
   };
 
+  onFilterSearchChange = e => {
+    this.setState({ searchTerm: e.target.value });
+  };
+
+  // filterList() {
+  //   this.state.hits.filter(i =>
+  //     i.title.toLowerCase().includes(this.state.searchTerm.toLowerCase())
+  //   );
+  // }
   render() {
+    console.log(this.state.hits);
     //const { hits/articles } = this.state;
+    const { error } = this.state;
     const list = this.state.hits.filter(i =>
       i.title.toLowerCase().includes(this.state.searchTerm.toLowerCase())
     );
+    // if (error) {
+    //   return (
+    //     <div>
+    //       <a>Oepss.. Something went wrong :(</a>
+    //     </div>
+    //   );
+    // }
+    if (error) {
+      return (
+        <div className="content">
+          <div>
+            <h1>Oeps... er is iets wrong</h1>
+            <h2>het lijkt erop dat er geen data wordt opgehaald :(</h2>
+            <button
+              //onClick={moet.nog.komen}
+              type="button"
+              className="btn btn-add"
+              id="pulse-button"
+            >
+              ga naar de website
+            </button>
+          </div>
+        </div>
+      );
+    }
     return (
+      //<---article toevoegen--->
       // <div className="table-responsive">
       //   <form ref={(i) => { this.addForm = i }} className="form-inline" onSubmit={(e) => { this.addArticle(e) }}>
       //     <div className="form-group">
@@ -101,10 +142,12 @@ class App extends Component {
       //     </div>
       //     <button type="submit" className="btn btn-success">Toevoegen</button>
       //   </form>
+      //<---article toevoegen--->
       <div className="table-responsive">
         <table className="table table-bordered">
           <thead>
-            <tr>
+            {/*<---lege article toevoegen--->
+             <tr>
               <td colSpan="6" className="text-center">
                 <button
                   onClick={() => this.addEmptyArticle()}
@@ -115,6 +158,36 @@ class App extends Component {
                 </button>
               </td>
             </tr>
+            <---lege article toevoegen---> */}
+            <tr>
+              <td colSpan="6">
+                <form className="form-inline">
+                  <input
+                    ref={i => {
+                      this.newArticle = i;
+                    }}
+                    type="text"
+                    placeholder="zoek artikelen"
+                    className="form-control"
+                    id="newItemInput"
+                    onChange={e => this.onSearchChange(e)}
+                  />
+                  <button
+                    onClick={() => this.getArticleHits()}
+                    type="button"
+                    className="btn btn-add"
+                  >
+                    search
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {/*<--- search/filter eigen component --->
+             <Search
+              onSearchChange={this.onSearchChange}
+              getArticleHits={this.getArticleHits}
+            /> 
+            <--- search/filter eigen component --->*/}
             <tr>
               <th scope="col">Title</th>
               <th scope="col">Author</th>
@@ -128,10 +201,10 @@ class App extends Component {
                       this.newArticle = i;
                     }}
                     type="text"
-                    placeholder="zoek artikelen"
+                    placeholder="Filter artikelen"
                     className="form-control"
                     id="newItemInput"
-                    onChange={e => this.onSearchChange(e)}
+                    onChange={e => this.onFilterSearchChange(e)}
                   />
                 </th>
               }
@@ -140,6 +213,14 @@ class App extends Component {
           <tbody>
             {list.slice(0, this.state.visible).map(hits => {
               //slice nog bewerken
+              // if (error) {
+              //   return (
+              //     <tr>
+              //       <td colSpan="6">lala</td>
+              //       {console.log("bla")}
+              //     </tr>
+              //   );
+              // } else {
               return (
                 <tr key={hits.objectID}>
                   <td key={hits.title}>
@@ -160,6 +241,7 @@ class App extends Component {
                   </td>
                 </tr>
               );
+              // }
             })}
             <tr>
               <td colSpan="6" className="text-center">
