@@ -1,6 +1,12 @@
 import React, { Component } from "react";
 import "./App.css";
-//import Search from "./Search";
+import Search from "./Search";
+import ArticleData from "./ArticleData";
+import FilterSearch from "./FilterSearch";
+//import _ from "lodash";
+//import LoadMore from "./LoadMore";
+//import EmptyArticle from "./EmptyArticle";
+//import AddArticle from "./AddArticle";
 
 class App extends Component {
   constructor(props) {
@@ -12,19 +18,49 @@ class App extends Component {
       message: "",
       searchTerm: "Foo"
     };
-    this.loadMore = this.loadMore.bind(this);
+    // this.onSearchChange = _.debounce(this.onSearchChange.bind(this), 1000);
+    // this.getArticleHits = _.debounce(this.getArticleHits.bind(this), 1000);
   }
 
-  loadMore() {
+  componentDidCatch(error, info) {
+    this.setState({ error: true });
+  }
+
+  loadMore = () => {
     this.setState(prev => {
       return { visible: prev.visible + 5 };
     });
-  }
+  };
+
+  // componentWillMount() {
+  //   localStorage.getItem("artikel") && this.setState({
+  //     artikel: JSON.parse(localStorage.localStorage.getItem("artikel"))
+  //   })
+  // }
+
   componentDidMount() {
+    //if( localStorage.getItem("artikel")) {
     this.getArticleHits();
+    // } else{
+    //  console.log("gebruik data van localStorage");
+    // }
   }
 
-  getArticleHits() {
+  getArticleHits = () => {
+    //e.preventDefault();
+
+    // const { value } = this.input;
+
+    // if (value === '') {
+    //   return;
+    // }
+
+    // const cachedHits = localStorage.getItem(value);
+    // if (cachedHits) {
+    //   this.setState({ hits: JSON.parse(cachedHits) });
+    //   return;
+    // }
+
     const articles = `https://hn.algolia.com/api/v1/search?query=${
       this.state.searchTerm
     }`;
@@ -32,34 +68,19 @@ class App extends Component {
     fetch(articles)
       .then(response => response.json())
       .then(data => this.setState({ hits: data.hits })) //.then(articles => this.setState({ articles })); //articles:articles.articles or articles
+      // .then(result => this.onResult(result, value))
       .catch(error => {
         console.error(error);
         this.setState({
           error: true
         });
       });
+  };
+
+  componentWillUpdate(nextProps, nextState) {
+    localStorage.setItem("artikel", JSON.stringify(nextState.hits));
+    localStorage.setItem("artikelDate", Date.now());
   }
-  //<---article toevoegen--->
-  // addArticle(e) {
-  //   e.preventDefault();
-  //   const { articles } = this.state;
-  //   const newArticle = this.newArticle.value;
-  //   const isOnList = articles.includes(newArticle);
-
-  //   if (isOnList) {
-  //     this.setState({
-  //       message: "Dit artikel staat al op de lijst"
-  //     })
-  //   } else {
-  //     newArticle !== "" && this.setState({
-  //       articles: [...this.state.articles, newArticle],
-  //       message: ''
-  //     })
-  //   }
-
-  //   this.addForm.reset();
-  // }
-  //<---article toevoegen--->
 
   addEmptyArticle = () => {
     this.setState({
@@ -78,42 +99,48 @@ class App extends Component {
     });
   };
 
-  removeArticle(i) {
+  removeArticle = i => {
     const newArticles = this.state.hits.filter(hit => {
       return hit !== i;
     });
     this.setState({
       hits: [...newArticles]
     });
-  }
+  };
 
   onSearchChange = e => {
     this.setState({ searchTerm: e.target.value });
   };
 
+  // onSearchChange = _.debounce(e => {
+  //   this.setState({ searchTerm: e.target.value });
+  // }, 1000);
+  // cacheData(){
+  //   const saveData = document.querySelector("dataBruh");
+  //   saveData.addEventListener("load", function(){
+  //     localStorage.setItem("hits", hits.value);
+  //     hitsDisplayCheck();
+  //   })
+  // }
+
+  // hitsDisplayCheck(){
+  //   if(loacalStorage.getItem("hits")){
+  //     let hits= localStorage.getItem("hits");
+
+  //   }
+  // }
+
+  // onResult = (result, key) => {
+  //   localStorage.setItem(key, JSON.stringify(result.hits));
+  //   this.setState({ hits: result.hits });
+  // }
+
   onFilterSearchChange = e => {
     this.setState({ searchTerm: e.target.value });
   };
 
-  // filterList() {
-  //   this.state.hits.filter(i =>
-  //     i.title.toLowerCase().includes(this.state.searchTerm.toLowerCase())
-  //   );
-  // }
   render() {
-    console.log(this.state.hits);
-    //const { hits/articles } = this.state;
     const { error } = this.state;
-    const list = this.state.hits.filter(i =>
-      i.title.toLowerCase().includes(this.state.searchTerm.toLowerCase())
-    );
-    // if (error) {
-    //   return (
-    //     <div>
-    //       <a>Oepss.. Something went wrong :(</a>
-    //     </div>
-    //   );
-    // }
     if (error) {
       return (
         <div className="content">
@@ -133,116 +160,38 @@ class App extends Component {
       );
     }
     return (
-      //<---article toevoegen--->
-      // <div className="table-responsive">
-      //   <form ref={(i) => { this.addForm = i }} className="form-inline" onSubmit={(e) => { this.addArticle(e) }}>
-      //     <div className="form-group">
-      //       <label className="sr-only" htmlFor="articleInput"></label>
-      //       <input ref={(i) => { this.newArticle = i }} type="text" placeholder="Article toevoegen" className="form-control" id="articleInput" />
-      //     </div>
-      //     <button type="submit" className="btn btn-success">Toevoegen</button>
-      //   </form>
-      //<---article toevoegen--->
+      /* <AddArticle addArticle={this.addArticle} /> */
       <div className="table-responsive">
         <table className="table table-bordered">
           <thead>
-            {/*<---lege article toevoegen--->
-             <tr>
-              <td colSpan="6" className="text-center">
-                <button
-                  onClick={() => this.addEmptyArticle()}
-                  type="button"
-                  className="btn btn-add"
-                >
-                  + Toevoegen leeg artikel
-                </button>
-              </td>
-            </tr>
-            <---lege article toevoegen---> */}
-            <tr>
-              <td colSpan="6">
-                <form className="form-inline">
-                  <input
-                    ref={i => {
-                      this.newArticle = i;
-                    }}
-                    type="text"
-                    placeholder="zoek artikelen"
-                    className="form-control"
-                    id="newItemInput"
-                    onChange={e => this.onSearchChange(e)}
-                  />
-                  <button
-                    onClick={() => this.getArticleHits()}
-                    type="button"
-                    className="btn btn-add"
-                  >
-                    search
-                  </button>
-                </form>
-              </td>
-            </tr>
-            {/*<--- search/filter eigen component --->
-             <Search
+            {/* <EmptyArticle addEmptyArticle={this.addEmptyArticle} /> */}
+            <Search
               onSearchChange={this.onSearchChange}
               getArticleHits={this.getArticleHits}
-            /> 
-            <--- search/filter eigen component --->*/}
+              //input={this.input}
+              ref={node => (this.input = node)}
+            />
             <tr>
               <th scope="col">Title</th>
               <th scope="col">Author</th>
               <th scope="col">Comments</th>
               <th scope="col">Points</th>
               <th scope="col">Archive</th>
-              {
-                <th scope="col">
-                  <input
-                    ref={i => {
-                      this.newArticle = i;
-                    }}
-                    type="text"
-                    placeholder="Filter artikelen"
-                    className="form-control"
-                    id="newItemInput"
-                    onChange={e => this.onFilterSearchChange(e)}
-                  />
-                </th>
-              }
+              <FilterSearch onFilterSearchChange={this.onFilterSearchChange} />
             </tr>
           </thead>
           <tbody>
-            {list.slice(0, this.state.visible).map(hits => {
-              //slice nog bewerken
-              // if (error) {
-              //   return (
-              //     <tr>
-              //       <td colSpan="6">lala</td>
-              //       {console.log("bla")}
-              //     </tr>
-              //   );
-              // } else {
-              return (
-                <tr key={hits.objectID}>
-                  <td key={hits.title}>
-                    <a href={hits.url}>{hits.title}</a>
-                  </td>
-                  <td key={hits.author}>{hits.author}</td>
-                  <td key={hits.num_comments}>{hits.num_comments}</td>
-                  <td key={hits.points}>{hits.points}</td>
-                  <td key={hits.objectID}>{hits.objectID}</td>
-                  <td>
-                    <button
-                      onClick={e => this.removeArticle(hits)}
-                      type="button"
-                      className="btn btn-danger btn-right"
-                    >
-                      Verwijder
-                    </button>
-                  </td>
-                </tr>
-              );
-              // }
-            })}
+            <ArticleData
+              hits={this.state.hits}
+              searchTerm={this.state.searchTerm}
+              visible={this.state.visible}
+              removeArticle={this.removeArticle}
+            />
+            {/* werkt nog niet <LoadMore
+              loadMore={this.LoadMore}
+              visible={this.state.visible}
+              hits={this.state.hits}
+            /> */}
             <tr>
               <td colSpan="6" className="text-center">
                 {this.state.visible < this.state.hits.length && (
@@ -251,7 +200,7 @@ class App extends Component {
                     type="button"
                     className="btn btn-add"
                   >
-                    ...load more
+                    ...laad meer
                   </button>
                 )}
               </td>

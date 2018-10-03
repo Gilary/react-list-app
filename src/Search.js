@@ -21,7 +21,7 @@ class Search extends Component {
               type="button"
               className="btn btn-add"
             >
-              search
+              zoek
             </button>
           </form>
         </td>
